@@ -6,9 +6,9 @@ def city_temp():
     data = pandas.read_csv('Datasets/city_temperature.csv')
     data.drop(['State', 'Region'], axis=1, inplace=True)
     data = data.drop(data[data['AvgTemperature'] == -99].index)
+    # data.dropna(subset=['AvgTemperature'], inplace=True)
     new_data = data.groupby(['City', 'Country'])['AvgTemperature'].mean()
     # print(new_data.tail(10))
-
     return new_data
     # print(data.tail(10))
     # print(data.dtypes)
@@ -30,15 +30,16 @@ def water():
         'Chloramines',
         'Region'], axis=1)
 
-    # data['ph'] = data['ph'].replace(".", ",")
-    dataw['WaterPollution'].fillna(0, inplace=True)
+    # dataw = dataw.dropna(subset=['WaterPollution'])
     for i in range(0, len(dataw)):
         dataw.at[i, 'WaterPollution'] = int(str(dataw['WaterPollution'][i]).replace('.', ''))
+    # dataw['WaterPollution'].fillna(0, inplace=True)
     return dataw
 
 
 def merge_it():
     final_df = pandas.merge(city_temp(), water(), how='right', on='City')
+    final_df.dropna(subset=['AvgTemperature'], inplace=True)
     print(final_df.tail(10))
     return final_df
 
@@ -49,7 +50,7 @@ def correlation(final_df):
 
 def plot(final_df):
     fig = px.scatter(final_df, x='AvgTemperature', y='WaterPollution')
-    fig.show()
+    # fig.show()
 
 
 if __name__ == '__main__':
